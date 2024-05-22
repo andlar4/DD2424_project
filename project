@@ -118,12 +118,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
@@ -194,8 +192,6 @@ class ConvNet(nn.Module):
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
-     transforms.RandomHorizontalFlip(),
-     transforms.RandomAffine(degrees=0, translate=(0.1, 0.1))
      ])
 
 batch_size = 4
@@ -330,7 +326,7 @@ class ConvNet(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
-  model = ConvNet() 
+model = ConvNet() 
 
 num_epochs = 50
 
@@ -350,18 +346,14 @@ for epoch in range(num_epochs):
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -452,10 +444,6 @@ class ConvNet(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-#transform = transforms.Compose(
-  #  [transforms.ToTensor(),
-  #   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
 transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.RandomHorizontalFlip(),
@@ -477,10 +465,8 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-model = ConvNet()  #Weight decay results
+model = ConvNet() 
 
 num_epochs = 50
 
@@ -500,18 +486,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -536,156 +518,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    test_loss.append(test_running_loss / len(testloader))
-    test_acc.append(correct_test / total_test)
-    print(correct_test / total_test)
-
-
-
-print('Finished Training')
-
-print(test_acc, test_loss)
-print(train_loss, train_acc)
-
-xvec = np.arange(0, len(train_loss), 1)
-
-pyplot.plot(xvec, train_loss, label = "Training")
-pyplot.plot(xvec, test_loss, label = "Testing")
-pyplot.xlabel("Epoch")
-pyplot.ylabel("Loss")
-
-pyplot.show()
-
-xvec = np.arange(0, len(test_acc), 1)
-
-pyplot.plot(xvec, train_acc, label = "Training")
-pyplot.plot(xvec, test_acc, label = "Testing")
-pyplot.xlabel("Epoch")
-pyplot.ylabel("Accuracy")
-
-pyplot.show()
-
-### Final model ####
-
-class ConvNet(nn.Module):
-    def __init__(self):
-        super(ConvNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
-        self.pool1 = nn.MaxPool2d(2, 2)
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.pool2 = nn.MaxPool2d(2, 2)
-        self.conv5 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv6 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
-        self.pool3 = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(128 * 4 * 4, 128)
-        self.fc2 = nn.Linear(128, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = self.pool1(x)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = self.pool2(x)
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
-        x = self.pool3(x)
-        x = x.view(-1, 128 * 4 * 4)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
-
-transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.RandomHorizontalFlip(),
-     transforms.RandomAffine(degrees=0, translate=(0.1, 0.1))
-     ])
-
-batch_size = 4
-
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                        download=True, transform=transform)
-
-
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                          shuffle=True, num_workers=2)
-
-testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                       download=True, transform=transform)
-
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                         shuffle=False, num_workers=2)
-
-
-model = ConvNet()  #Weight decay results
-
-num_epochs = 50
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-train_loss = list()
-test_loss = list()
-
-train_acc = list()
-test_acc = list()
-
-for epoch in range(num_epochs):  # loop over the dataset multiple times
-    running_loss = 0.0
-    running_loss_epoch = 0.0
-    correct_train = 0
-    total_train = 0
-    ctr = 0
-    for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
-        # zero the parameter gradients
-        optimizer.zero_grad()
-
-        # forward + backward + optimize
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-
-        # print statistics
-        running_loss += loss.item()
-        _, predicted_train = torch.max(outputs.data, 1)
-        total_train += labels.size(0)
-        correct_train += (predicted_train == labels).sum().item()
-        if i % 2000 == 1999:    # print every 2000 mini-batches
-            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
-            running_loss_epoch += (running_loss/2000)
-            ctr += 1
-            running_loss = 0.0
-
-    train_loss.append(running_loss_epoch / ctr)
-    train_acc.append(correct_train / total_train)
-    print(correct_train / total_train)
-
-    correct_test = 0
-    total_test = 0
-    test_running_loss = 0.0
-    with torch.no_grad():
-        for data in testloader:
-            images, labels_test = data
-            outputs_test = model(images)
-            loss_test = criterion(outputs_test, labels_test)
-            test_running_loss += loss_test.item()
-
-            # Calculate test accuracy
-            _, predicted_test = torch.max(outputs_test.data, 1)
-            total_test += labels_test.size(0)
-            correct_test += (predicted_test == labels_test).sum().item()
-
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
@@ -792,9 +628,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  #Weight decay results
 
 num_epochs = 300
@@ -808,7 +641,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs): 
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -816,18 +649,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -858,11 +687,9 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
-
 
 print('Finished Training')
 
@@ -886,8 +713,6 @@ pyplot.xlabel("Epoch")
 pyplot.ylabel("Accuracy")
 
 pyplot.show()
-
-
 
 ######################
 
@@ -968,9 +793,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  
 
 num_epochs = 300
@@ -984,7 +806,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -992,18 +814,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1029,12 +847,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
@@ -1140,9 +956,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  
 
 num_epochs = 300
@@ -1156,7 +969,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs):  
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -1164,18 +977,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1201,12 +1010,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
@@ -1313,9 +1120,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  
 
 num_epochs = 300
@@ -1329,7 +1133,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -1337,18 +1141,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1374,16 +1174,13 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
-
 
 print('Finished Training')
 
@@ -1487,8 +1284,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 model = ConvNet()  
 
@@ -1504,7 +1299,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs): 
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -1512,18 +1307,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1549,16 +1340,13 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
-
 
 print('Finished Training')
 
@@ -1639,10 +1427,6 @@ class ConvNet(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-#transform = transforms.Compose(
-  #  [transforms.ToTensor(),
-  #   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
 transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.RandomHorizontalFlip(),
@@ -1664,9 +1448,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  
 
 num_epochs = 300
@@ -1680,7 +1461,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs): 
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -1688,18 +1469,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1725,12 +1502,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
@@ -1802,10 +1577,6 @@ class ConvNet(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-#transform = transforms.Compose(
-  #  [transforms.ToTensor(),
-  #   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
 transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.RandomHorizontalFlip(),
@@ -1826,9 +1597,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
-
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 model = ConvNet()  
 
@@ -1851,18 +1619,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -1888,16 +1652,13 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
-
 
 print('Finished Training')
 
@@ -1991,9 +1752,6 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 model = ConvNet()  
 
 num_epochs = 300
@@ -2007,7 +1765,7 @@ test_loss = list()
 train_acc = list()
 test_acc = list()
 
-for epoch in range(num_epochs):  # loop over the dataset multiple times
+for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
     running_loss_epoch = 0.0
@@ -2015,18 +1773,14 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
     total_train = 0
     ctr = 0
     for i, data in enumerate(trainloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
-        # zero the parameter gradients
         optimizer.zero_grad()
 
-        # forward + backward + optimize
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
-        # print statistics
         running_loss += loss.item()
         _, predicted_train = torch.max(outputs.data, 1)
         total_train += labels.size(0)
@@ -2052,12 +1806,10 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
             loss_test = criterion(outputs_test, labels_test)
             test_running_loss += loss_test.item()
 
-            # Calculate test accuracy
             _, predicted_test = torch.max(outputs_test.data, 1)
             total_test += labels_test.size(0)
             correct_test += (predicted_test == labels_test).sum().item()
 
-    # Append average test loss and accuracy for the epoch
     test_loss.append(test_running_loss / len(testloader))
     test_acc.append(correct_test / total_test)
     print(correct_test / total_test)
